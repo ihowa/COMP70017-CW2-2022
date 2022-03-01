@@ -49,6 +49,7 @@ contract TicTacToe {
       **/    
     function _threeInALine(uint a, uint b, uint c) private view returns (bool){
         /*Please complete the code here.*/
+        return ((a == b) && (a == c));
     }
 
     /**
@@ -56,8 +57,49 @@ contract TicTacToe {
      * @param pos the position the player places at
      * @return the status of the game
      */
+    uint private moves = 0;
     function _getStatus(uint pos) private view returns (uint) {
         /*Please complete the code here.*/
+        moves += 1;
+
+        if (_threeInALine(board[0], board[1], board[2])) {
+          return board[0];
+        }
+
+        if (_threeInALine(board[3], board[4], board[5])) {
+          return board[3];
+        }
+
+        if (_threeInALine(board[6], board[7], board[8])) {
+          return board[6];
+        }
+
+        if (_threeInALine(board[0], board[3], board[6])) {
+          return board[0];
+        }
+
+        if (_threeInALine(board[1], board[4], board[7])) {
+          return board[1];
+        }
+
+        if (_threeInALine(board[2], board[5], board[8])) {
+          return board[2];
+        }
+
+        if (_threeInALine(board[2], board[4], board[6])) {
+          return board[2];
+        }
+
+        if (_threeInALine(board[0], board[4], board[8])) {
+          return board[0];
+        }
+
+        if (moves == board.length) {
+          return 3;
+        }
+        else {
+          return 0;
+        }
     }
 
     /**
@@ -67,6 +109,9 @@ contract TicTacToe {
      */
     modifier _checkStatus(uint pos) {
         /*Please complete the code here.*/
+        require(status == 0);
+        _;
+        status = _getStatus(pos);
     }
 
     /**
@@ -75,6 +120,12 @@ contract TicTacToe {
      */
     function myTurn() public view returns (bool) {
        /*Please complete the code here.*/
+      if (msg.sender == players[0]) {
+        return (turn == 1);
+      }
+      if (msg.sender == players[1]) {
+        return (turn == 2);
+      }
     }
 
     /**
@@ -83,6 +134,14 @@ contract TicTacToe {
      */
     modifier _myTurn() {
       /*Please complete the code here.*/
+      require(myTurn());
+      _;
+      if (turn == 1) {
+        turn = 2;
+      } 
+      else {
+        turn = 1;
+      }
     }
 
     /**
@@ -92,6 +151,9 @@ contract TicTacToe {
      */
     function validMove(uint pos) public view returns (bool) {
       /*Please complete the code here.*/
+      bool onBoard = (pos >= 0) && (pos < board.length);
+      bool isEmptySlot = (board[pos] == 0);
+      return (onBoard && isEmptySlot);
     }
 
     /**
@@ -100,6 +162,8 @@ contract TicTacToe {
      */
     modifier _validMove(uint pos) {
       /*Please complete the code here.*/
+      require(validMove(pos));
+      _;
     }
 
     /**
@@ -107,7 +171,7 @@ contract TicTacToe {
      * @param pos the position the player places at
      */
     function move(uint pos) public _validMove(pos) _checkStatus(pos) _myTurn {
-        board[pos] = turn;
+      board[pos] = turn;
     }
 
     /**
